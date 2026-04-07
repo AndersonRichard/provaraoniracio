@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prova — Ciclo I · Raciocínio Lógico</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e3a5f;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --green: #00ff9d;
+    --red: #ff4757;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --correct-bg: rgba(0,255,157,0.06);
+    --wrong-bg: rgba(255,71,87,0.06);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 800px 600px at 20% 0%, rgba(0,212,255,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 600px 400px at 80% 100%, rgba(255,107,53,0.04) 0%, transparent 60%);
+  }
+
+  header {
+    text-align: center;
+    padding: 2.5rem 2rem 1.5rem;
+  }
+  .tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.9rem;
+    border-radius: 2px;
+    margin-bottom: 0.9rem;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+  h1 span { color: var(--accent); }
+  .subtitle {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    letter-spacing: 0.08em;
+  }
+
+  #topbar {
+    max-width: 900px;
+    margin: 0 auto 1.5rem;
+    padding: 0 2rem;
+  }
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+  }
+  .score-item { text-align: center; }
+  .score-val { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+  .score-val.c { color: var(--green); }
+  .score-val.w { color: var(--red); }
+  .score-val.t { color: var(--accent); }
+  .score-val.p { color: var(--accent2); }
+  .score-label { font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; color: var(--muted); margin-top: 0.2rem; }
+
+  .progress-bar-outer { height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+  .progress-bar-inner { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); transition: width 0.4s ease; width: 0%; }
+  .progress-text { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--muted); margin-top: 0.35rem; letter-spacing: 0.06em; }
+
+  .controls-bar {
+    max-width: 900px;
+    margin: 0 auto 0.5rem;
+    padding: 0 2rem;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+  }
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.55rem 1.2rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.18s;
+    border-radius: 2px;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+  .btn.primary:hover { background: transparent; color: var(--accent); }
+
+  #exam {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem 5rem;
+  }
+
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    border-left: 2px solid var(--accent2);
+    padding-left: 0.75rem;
+    margin: 2.25rem 0 1rem;
+  }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.6rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.3s;
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease both;
+  }
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--accent);
+    opacity: 0.35;
+  }
+  .question-card.answered-correct { border-color: var(--green); background: var(--correct-bg); }
+  .question-card.answered-correct::before { background: var(--green); opacity: 1; }
+  .question-card.answered-wrong { border-color: var(--red); background: var(--wrong-bg); }
+  .question-card.answered-wrong::before { background: var(--red); opacity: 1; }
+
+  .q-header { display: flex; align-items: flex-start; gap: 0.85rem; margin-bottom: 0.9rem; }
+  .q-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--accent);
+    background: rgba(0,212,255,0.07);
+    border: 1px solid var(--border);
+    padding: 0.18rem 0.5rem;
+    border-radius: 2px;
+    white-space: nowrap;
+    margin-top: 3px;
+  }
+  .q-type { font-family: 'Space Mono', monospace; font-size: 0.52rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent2); margin-bottom: 0.15rem; }
+  .q-text { font-size: 0.92rem; line-height: 1.65; }
+  .q-text code {
+    font-family: 'Space Mono', monospace;
+    background: rgba(0,212,255,0.07);
+    padding: 0.1em 0.35em;
+    border-radius: 2px;
+    font-size: 0.82em;
+    color: var(--accent);
+  }
+
+  .options { margin-top: 1.1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  .option:hover:not(:disabled) { border-color: var(--accent); background: rgba(0,212,255,0.04); }
+  .option:disabled { cursor: default; }
+  .option .opt-letter { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); min-width: 1.1rem; margin-top: 2px; }
+  .option.correct { border-color: var(--green) !important; background: rgba(0,255,157,0.07) !important; }
+  .option.correct .opt-letter { color: var(--green); }
+  .option.wrong { border-color: var(--red) !important; background: rgba(255,71,87,0.07) !important; }
+  .option.wrong .opt-letter { color: var(--red); }
+
+  .open-answer {
+    margin-top: 1rem;
+    width: 100%;
+    min-height: 90px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.875rem;
+    padding: 0.75rem 0.9rem;
+    resize: vertical;
+    transition: border-color 0.2s;
+    line-height: 1.55;
+  }
+  .open-answer:focus { outline: none; border-color: var(--accent); }
+  .check-open { margin-top: 0.6rem; }
+
+  .gabarito {
+    margin-top: 0.9rem;
+    padding: 0.9rem 1rem;
+    background: rgba(0,212,255,0.04);
+    border: 1px solid rgba(0,212,255,0.14);
+    border-radius: 3px;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .gabarito-title { font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+  .gabarito-text { font-size: 0.86rem; color: var(--text); line-height: 1.65; }
+  .gabarito-text strong { color: var(--accent); }
+
+  #result-screen {
+    display: none;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3rem 2rem 6rem;
+    text-align: center;
+  }
+  .result-title { font-size: clamp(2rem, 6vw, 4.5rem); font-weight: 800; letter-spacing: -0.04em; margin-bottom: 0.4rem; }
+  .result-pct { font-family: 'Space Mono', monospace; font-size: 0.9rem; color: var(--accent); margin-bottom: 2rem; line-height: 1.6; }
+  .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .result-box { background: var(--surface); border: 1px solid var(--border); padding: 1.4rem; border-radius: 4px; }
+  .result-box .val { font-size: 2.2rem; font-weight: 800; }
+  .result-box .lbl { font-family: 'Space Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; color: var(--muted); margin-top: 0.2rem; }
+
+  @keyframes fadeIn { from { opacity:0; transform: translateY(5px); } to { opacity:1; transform:none; } }
+
+  @media (max-width: 600px) {
+    header { padding: 1.75rem 1rem 1rem; }
+    #exam, #topbar, #result-screen, .controls-bar { padding-left: 1rem; padding-right: 1rem; }
+    .score-grid { grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="tag">Ciclo I · Raciocínio Lógico &amp; Programação em Bloco</div>
+  <h1>Prova <span>Interativa</span></h1>
+  <p class="subtitle">// 30 questões · embaralham a cada tentativa · gabarito imediato</p>
+</header>
+
+<div id="topbar">
+  <div class="score-grid">
+    <div class="score-item"><div class="score-val c" id="sc-correct">0</div><div class="score-label">Corretas</div></div>
+    <div class="score-item"><div class="score-val w" id="sc-wrong">0</div><div class="score-label">Erradas</div></div>
+    <div class="score-item"><div class="score-val t" id="sc-pct">—</div><div class="score-label">% Objetivas</div></div>
+    <div class="score-item"><div class="score-val p" id="sc-open">0</div><div class="score-label">Abertas vistas</div></div>
+  </div>
+  <div class="progress-bar-outer"><div class="progress-bar-inner" id="prog-bar"></div></div>
+  <div class="progress-text" id="prog-text">0 / 30 respondidas</div>
+</div>
+
+<div class="controls-bar">
+  <button class="btn" onclick="finishExam()">📊 Ver Resultado</button>
+  <button class="btn primary" onclick="startExam()">🔀 Nova Tentativa</button>
+</div>
+
+<div id="exam"></div>
+
+<div id="result-screen">
+  <div class="result-title" id="result-title">Resultado</div>
+  <div class="result-pct" id="result-pct"></div>
+  <div class="result-grid">
+    <div class="result-box"><div class="val" id="r-correct" style="color:var(--green)">-</div><div class="lbl">Corretas</div></div>
+    <div class="result-box"><div class="val" id="r-wrong" style="color:var(--red)">-</div><div class="lbl">Erradas</div></div>
+    <div class="result-box"><div class="val" id="r-open" style="color:var(--accent)">-</div><div class="lbl">Abertas vistas</div></div>
+    <div class="result-box"><div class="val" id="r-pct" style="color:var(--accent2)">-</div><div class="lbl">% de acerto</div></div>
+  </div>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+    <button class="btn primary" onclick="startExam()">🔀 Nova Tentativa</button>
+    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆ Voltar ao topo</button>
+  </div>
+</div>
+
+<script>
+const allQuestions = [
+  /* ══ MÚLTIPLA ESCOLHA (20) ══ */
+  {
+    type:'mc', section:'Operadores Lógicos',
+    text:'Qual é o resultado de <code>P ∧ Q</code> quando P = Verdadeiro e Q = Falso?',
+    options:['Verdadeiro','Falso','Indeterminado','Depende de R'],
+    answer:1,
+    gabarito:'A conjunção (∧) é verdadeira <strong>somente quando ambas</strong> as proposições são verdadeiras. Como Q = Falso, o resultado é <strong>Falso</strong>.'
+  },
+  {
+    type:'mc', section:'Operadores Lógicos',
+    text:'A disjunção <code>P ∨ Q</code> é FALSA apenas quando:',
+    options:['P é verdadeiro e Q é falso','Ambos são verdadeiros','Ambos são falsos','P é falso e Q é verdadeiro'],
+    answer:2,
+    gabarito:'O OU (∨) é falso <strong>somente quando ambas as proposições são falsas</strong>. Qualquer outro caso resulta em Verdadeiro.'
+  },
+  {
+    type:'mc', section:'Operadores Lógicos',
+    text:'O que a negação <code>¬P</code> faz com uma proposição?',
+    options:['Duplica o valor','Inverte o valor lógico','Mantém o valor original','Transforma em bicondicional'],
+    answer:1,
+    gabarito:'A negação <strong>inverte</strong> o valor lógico: se P é Verdadeiro, ¬P é Falso — e vice-versa.'
+  },
+  {
+    type:'mc', section:'Implicação & Bicondicional',
+    text:'Na implicação <code>P → Q</code>, em qual situação o resultado é FALSO?',
+    options:['P=F e Q=V','P=V e Q=V','P=V e Q=F','P=F e Q=F'],
+    answer:2,
+    gabarito:'A implicação é falsa <strong>somente quando P é Verdadeiro e Q é Falso</strong>. Nos outros três casos é sempre verdadeira.'
+  },
+  {
+    type:'mc', section:'Implicação & Bicondicional',
+    text:'O bicondicional <code>P ↔ Q</code> é VERDADEIRO quando:',
+    options:['P e Q têm valores opostos','P é verdadeiro e Q é falso','P e Q têm o mesmo valor lógico','Sempre'],
+    answer:2,
+    gabarito:'<strong>P ↔ Q é verdadeiro se e somente se P e Q têm o mesmo valor lógico</strong> — (V,V) ou (F,F).'
+  },
+  {
+    type:'mc', section:'Tautologia & Satisfatibilidade',
+    text:'A expressão <code>P ∨ ¬P</code> é classificada como:',
+    options:['Contradição','Contingência','Tautologia','Bicondicional'],
+    answer:2,
+    gabarito:'<strong>Tautologia</strong> — P ∨ ¬P é sempre verdadeiro, independente do valor de P.'
+  },
+  {
+    type:'mc', section:'Tautologia & Satisfatibilidade',
+    text:'O conjunto <code>{P, ¬P}</code> é:',
+    options:['Satisfatível','Insatisfatível','Tautológico','Decidível'],
+    answer:1,
+    gabarito:'<strong>Insatisfatível</strong> — P e ¬P nunca podem ser verdadeiros ao mesmo tempo; são contraditórios.'
+  },
+  {
+    type:'mc', section:'Leis Lógicas',
+    text:'Qual opção representa corretamente uma Lei de De Morgan?',
+    options:['¬(P∨Q) ≡ ¬P∨¬Q','¬(P∧Q) ≡ ¬P∧¬Q','¬(P∨Q) ≡ ¬P∧¬Q','¬(P∧Q) ≡ P∨Q'],
+    answer:2,
+    gabarito:'<strong>¬(P ∨ Q) ≡ ¬P ∧ ¬Q</strong>. Ao negar um OU, o operador vira E e cada parte é negada. A outra lei: ¬(P ∧ Q) ≡ ¬P ∨ ¬Q.'
+  },
+  {
+    type:'mc', section:'Leis Lógicas',
+    text:'Qual é o resultado de <code>P ∧ F</code> pela Lei da Dominação?',
+    options:['P','F','V','¬P'],
+    answer:1,
+    gabarito:'<strong>P ∧ F ≡ F</strong> — combinar qualquer proposição com Falso usando E resulta sempre em Falso.'
+  },
+  {
+    type:'mc', section:'Leis Lógicas',
+    text:'A Lei da Absorção afirma que <code>P ∨ (P ∧ Q)</code> é equivalente a:',
+    options:['Q','P ∧ Q','P','V'],
+    answer:2,
+    gabarito:'<strong>P ∨ (P ∧ Q) ≡ P</strong>. A parte "(P ∧ Q)" é redundante quando P já aparece no OU — ela é absorvida.'
+  },
+  {
+    type:'mc', section:'Leis Lógicas',
+    text:'A dupla negação <code>¬(¬P)</code> é equivalente a:',
+    options:['¬P','F','V','P'],
+    answer:3,
+    gabarito:'<strong>¬(¬P) ≡ P</strong>. Negar duas vezes retorna à proposição original.'
+  },
+  {
+    type:'mc', section:'Quantificadores',
+    text:'A negação correta de <code>∀x P(x)</code> é:',
+    options:['∀x ¬P(x)','¬∀x P(x)','∃x ¬P(x)','∃x P(x)'],
+    answer:2,
+    gabarito:'<strong>¬(∀x P(x)) ≡ ∃x ¬P(x)</strong> — negar "para todo" transforma em "existe pelo menos um... não".'
+  },
+  {
+    type:'mc', section:'Quantificadores',
+    text:'A negação de <code>∃x P(x)</code> é:',
+    options:['∃x ¬P(x)','¬∃x P(x)','∀x ¬P(x)','∀x P(x)'],
+    answer:2,
+    gabarito:'<strong>¬(∃x P(x)) ≡ ∀x ¬P(x)</strong> — negar "existe pelo menos um" transforma em "para todo... não".'
+  },
+  {
+    type:'mc', section:'Quantificadores',
+    text:'Qual proposição usa corretamente o quantificador existencial (∃)?',
+    options:['∀x (x é par)','∃x (x² = 4)','∀x (x > 0 → x² > 0)','∃x (x = x + 1)'],
+    answer:1,
+    gabarito:'<strong>∃x (x² = 4)</strong> é verdadeiro — existem números (x=2 e x=−2) cujo quadrado é 4.'
+  },
+  {
+    type:'mc', section:'Álgebra Booleana & Portas Lógicas',
+    text:'A porta lógica NAND produz saída 0 apenas quando:',
+    options:['Ambas as entradas são 0','Pelo menos uma é 1','Ambas as entradas são 1','Pelo menos uma é 0'],
+    answer:2,
+    gabarito:'NAND = NOT(AND). A AND só produz 1 com (1,1) — o NOT inverte para 0. <strong>NAND = 0 somente quando ambas as entradas são 1</strong>.'
+  },
+  {
+    type:'mc', section:'Álgebra Booleana & Portas Lógicas',
+    text:'O operador XOR produz saída 1 quando:',
+    options:['Ambas as entradas são iguais','Ambas são 0','As entradas são diferentes entre si','Pelo menos uma é 0'],
+    answer:2,
+    gabarito:'<strong>XOR = 1 quando as entradas são diferentes</strong>: (0,1) ou (1,0). Quando iguais — (0,0) ou (1,1) — o resultado é 0.'
+  },
+  {
+    type:'mc', section:'Álgebra Booleana & Portas Lógicas',
+    text:'Qual é a expressão booleana da porta NOR?',
+    options:['S = A · B','S = A + B','S = ¬(A + B)','S = ¬(A · B)'],
+    answer:2,
+    gabarito:'<strong>NOR = ¬(A + B)</strong> — complemento da porta OR. Só produz saída 1 quando ambas as entradas são 0.'
+  },
+  {
+    type:'mc', section:'Sinais & Conversão ADC',
+    text:'Um ADC de 8 bits com faixa 0–5 V tem resolução de aproximadamente:',
+    options:['0,039 V/bit','0,0195 V/bit','0,0098 V/bit','0,0049 V/bit'],
+    answer:1,
+    gabarito:'Resolução = 5 V ÷ 2⁸ = 5 ÷ 256 ≈ <strong>0,0195 V/bit</strong>.'
+  },
+  {
+    type:'mc', section:'Sinais & Conversão ADC',
+    text:'Um sinal analógico se diferencia do digital porque:',
+    options:[
+      'Só pode assumir 0 ou 1',
+      'Assume infinitos valores contínuos dentro de um intervalo',
+      'É mais rápido que o digital',
+      'Não pode ser convertido para digital'
+    ],
+    answer:1,
+    gabarito:'Um sinal <strong>analógico assume infinitos valores contínuos</strong> dentro de um intervalo físico. O digital usa apenas níveis discretos (0 e 1).'
+  },
+  {
+    type:'mc', section:'Sinais & Conversão ADC',
+    text:'A digitalização de um sinal analógico envolve, em ordem, as etapas:',
+    options:[
+      'Quantização → Amostragem → Codificação',
+      'Codificação → Quantização → Amostragem',
+      'Amostragem → Quantização → Codificação',
+      'Amostragem → Codificação → Quantização'
+    ],
+    answer:2,
+    gabarito:'A sequência correta é: <strong>Amostragem</strong> → <strong>Quantização</strong> → <strong>Codificação</strong>.'
+  },
+
+  /* ══ ABERTAS (10) ══ */
+  {
+    type:'open', section:'Operadores Lógicos',
+    text:'Explique com suas palavras a diferença entre a Conjunção (∧) e a Disjunção (∨), dando um exemplo cotidiano para cada operador.',
+    gabarito:'<strong>Conjunção (E / ∧):</strong> verdadeira somente quando AMBAS as proposições são verdadeiras. Ex.: "Vou ao cinema E está chovendo" — as duas condições precisam ocorrer ao mesmo tempo.\n<strong>Disjunção (OU / ∨):</strong> verdadeira quando PELO MENOS UMA das proposições é verdadeira. Ex.: "Vou ao cinema OU ao parque" — basta ir a um dos lugares.'
+  },
+  {
+    type:'open', section:'Leis Lógicas',
+    text:'Enuncie as Leis de De Morgan e demonstre como elas se aplicam à expressão ¬(P ∨ Q).',
+    gabarito:'As Leis de De Morgan mostram como distribuir a negação:\n• <strong>¬(P ∨ Q) ≡ ¬P ∧ ¬Q</strong>\n• <strong>¬(P ∧ Q) ≡ ¬P ∨ ¬Q</strong>\n\nAplicando: ¬(P ∨ Q) ≡ <strong>¬P ∧ ¬Q</strong>. Em linguagem natural: "Não é verdade que vou ao cinema OU ao parque" equivale a "Não vou ao cinema E não vou ao parque". Regra prática: troca o operador e nega cada parte.'
+  },
+  {
+    type:'open', section:'Leis Lógicas',
+    text:'O que são as Leis da Identidade e da Dominação? Dê um exemplo de cada uma das quatro formas.',
+    gabarito:'<strong>Identidade (o neutro não altera o resultado):</strong>\n• P ∧ V ≡ P → "Vou ao cinema E o céu existe" = depende só de ir ao cinema.\n• P ∨ F ≡ P → "Vou ao cinema OU a Lua é de queijo" = depende só de ir ao cinema.\n\n<strong>Dominação (o dominante anula tudo):</strong>\n• P ∨ V ≡ V → "Vou ao cinema OU 2+2=4" = sempre verdadeiro.\n• P ∧ F ≡ F → "Vou ao cinema E a Terra é plana" = sempre falso.'
+  },
+  {
+    type:'open', section:'Implicação & Bicondicional',
+    text:'Construa a tabela-verdade completa da implicação P → Q e explique por que ela é verdadeira quando P é falso.',
+    gabarito:'Tabela-verdade de P → Q:\nP=V, Q=V → V\nP=V, Q=F → F\nP=F, Q=V → V\nP=F, Q=F → V\n\nQuando P é Falso, a implicação é <strong>vacuamente verdadeira</strong>: em lógica, só há falha quando prometemos algo (P=V) e não cumprimos (Q=F). Se a premissa já é falsa, a promessa nunca foi "ativada" — convenciona-se como verdadeira.'
+  },
+  {
+    type:'open', section:'Quantificadores',
+    text:'Diferencie o Quantificador Universal (∀) do Existencial (∃) e explique como negar cada um, com exemplos em linguagem natural.',
+    gabarito:'<strong>∀ (Para todo):</strong> a propriedade vale para TODOS os elementos sem exceção. Ex.: ∀x (x+1 > x).\n<strong>∃ (Existe pelo menos um):</strong> basta um elemento que satisfaça. Ex.: ∃x (x² = 4).\n\n<strong>Negações:</strong>\n• ¬(∀x P(x)) ≡ ∃x ¬P(x) → "Nem todos passaram" ≡ "Existe pelo menos um que não passou".\n• ¬(∃x P(x)) ≡ ∀x ¬P(x) → "Nenhum aluno falhou" ≡ "Para todo aluno, ele não falhou".'
+  },
+  {
+    type:'open', section:'Álgebra Booleana & Portas Lógicas',
+    text:'Descreva o funcionamento das portas AND, OR, NOT e XOR com tabelas-verdade (usando 0 e 1) e cite um uso prático para cada.',
+    gabarito:'<strong>AND:</strong> saída 1 só quando A=1 e B=1. (0,0→0),(0,1→0),(1,0→0),(1,1→1). Uso: ligar motor apenas se chave E sensor OK.\n<strong>OR:</strong> saída 1 quando pelo menos uma entrada é 1. (0,0→0),(0,1→1),(1,0→1),(1,1→1). Uso: alarme que dispara se sensor A OU B detectar movimento.\n<strong>NOT:</strong> inverte o sinal. (0→1),(1→0). Uso: ligar LED quando botão NÃO está pressionado.\n<strong>XOR:</strong> saída 1 quando entradas são diferentes. (0,0→0),(0,1→1),(1,0→1),(1,1→0). Uso: comparador de bits, criptografia, soma binária.'
+  },
+  {
+    type:'open', section:'Álgebra Booleana & Portas Lógicas',
+    text:'Monte a expressão booleana do circuito: entrada A passa por um NOT; as entradas B e C passam por uma AND; os dois resultados entram em uma OR. Qual é a expressão final S?',
+    gabarito:'Passo a passo:\n1. NOT aplicado a A → <strong>Ā</strong>\n2. AND de B e C → <strong>B · C</strong>\n3. OR das duas saídas → <strong>S = Ā + (B · C)</strong>\n\nOu seja: S = ¬A ∨ (B ∧ C). A saída é 1 quando A=0, ou quando B e C são ambos 1 (independente de A).'
+  },
+  {
+    type:'open', section:'Sinais & Conversão ADC',
+    text:'O sensor LM35 gera 10 mV por grau Celsius. Um ADC de 10 bits com tensão de referência de 5 V é usado para digitalizar o sinal. a) Qual é a resolução em mV/bit? b) Qual valor digital corresponde a 37°C?',
+    gabarito:'<strong>a) Resolução:</strong>\nNíveis = 2¹⁰ = 1024\nResolução = 5000 mV ÷ 1024 ≈ <strong>4,88 mV/bit</strong>\n\n<strong>b) Valor digital para 37°C:</strong>\nTensão = 37 × 10 mV = 370 mV\nValor digital = 370 ÷ 4,88 ≈ <strong>75,8 → arredondado: 76</strong>\n\nOu: (370/5000) × 1024 ≈ 75,8.'
+  },
+  {
+    type:'open', section:'Decidibilidade',
+    text:'O que é um problema decidível? Explique o Problema da Parada e por que ele é considerado indecidível.',
+    gabarito:'Um problema é <strong>decidível</strong> se existe um algoritmo que sempre termina e responde corretamente (Sim/Não) para qualquer entrada.\n\n<strong>Problema da Parada:</strong> dado um programa P e uma entrada E, determinar se P vai parar ou rodar indefinidamente.\n\n<strong>Por que é indecidível?</strong> Alan Turing provou por contradição: se existisse um verificador H(P,E), poderíamos construir um programa D que contradiz a previsão de H — gerando paradoxo lógico. Conclusão: <strong>nenhum algoritmo geral pode resolver o Problema da Parada para todos os programas</strong>.'
+  },
+  {
+    type:'open', section:'Programação em Bloco',
+    text:'O que é programação em blocos (como o Scratch)? Cite pelo menos 4 estruturas lógicas que podem ser implementadas e como elas se relacionam com a lógica estudada no ciclo.',
+    gabarito:'<strong>Programação em blocos</strong> é um paradigma visual onde comandos são peças encaixáveis — eliminando erros de sintaxe e focando na lógica.\n\n<strong>Estruturas e relações:</strong>\n1. <strong>Sequência:</strong> blocos executados em ordem — base do algoritmo determinístico.\n2. <strong>Condicional (Se/Senão):</strong> implementa implicações (P → ação). Ex.: "Se tocou no inimigo, então perde vida".\n3. <strong>Laços:</strong> relaciona-se ao quantificador universal — "para todo frame, mova o personagem".\n4. <strong>Variáveis:</strong> armazenam valores booleanos ou numéricos — pontuação, vidas, estado do jogo.\n5. <strong>Operadores lógicos (E/OU/NÃO):</strong> condicionais compostas. Ex.: "Se tecla E pontuação > 0, então disparar".'
+  }
+];
+
+/* ── STATE ── */
+let shuffled=[], correct=0, wrong=0, openSeen=0, answered=0;
+const totalMC = allQuestions.filter(q=>q.type==='mc').length;
+
+/* ── UTILS ── */
+const shuffle = arr => {
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=0|Math.random()*(i+1);
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+};
+
+function updateScore(){
+  document.getElementById('sc-correct').textContent=correct;
+  document.getElementById('sc-wrong').textContent=wrong;
+  document.getElementById('sc-open').textContent=openSeen;
+  const pct=correct+wrong>0?Math.round(correct/(correct+wrong)*100):'—';
+  document.getElementById('sc-pct').textContent=pct+(pct==='—'?'':'%');
+}
+
+function updateProgress(){
+  const pct=shuffled.length>0?(answered/shuffled.length)*100:0;
+  document.getElementById('prog-bar').style.width=pct+'%';
+  document.getElementById('prog-text').textContent=answered+' / '+shuffled.length+' respondidas';
+}
+
+/* ── BUILD ── */
+function startExam(){
+  correct=0; wrong=0; openSeen=0; answered=0;
+  updateScore(); updateProgress();
+  document.getElementById('result-screen').style.display='none';
+
+  shuffled=shuffle(allQuestions);
+  const container=document.getElementById('exam');
+  container.innerHTML='';
+
+  let lastSec='';
+  shuffled.forEach((q,i)=>{
+    if(q.section!==lastSec){
+      lastSec=q.section;
+      const s=document.createElement('div');
+      s.className='section-title';
+      s.textContent='// '+q.section;
+      container.appendChild(s);
+    }
+    container.appendChild(buildCard(q,i));
+  });
+
+  const fin=document.createElement('div');
+  fin.style.cssText='text-align:center;margin-top:2.5rem;';
+  fin.innerHTML=`<button class="btn primary" onclick="finishExam()" style="font-size:.82rem;padding:.9rem 2.5rem;">📊 Ver Resultado Final</button>`;
+  container.appendChild(fin);
+
+  updateProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function buildCard(q,idx){
+  const card=document.createElement('div');
+  card.className='question-card';
+  card.id='card-'+idx;
+  const letters=['A','B','C','D','E'];
+
+  let inner=`<div class="q-header">
+    <span class="q-num">${idx+1}</span>
+    <div>
+      <div class="q-type">${q.type==='mc'?'⬡ Múltipla Escolha':'✎ Questão Aberta'}</div>
+      <div class="q-text">${q.text}</div>
+    </div>
+  </div>`;
+
+  if(q.type==='mc'){
+    const opts=shuffle(q.options.map((o,i)=>({text:o,orig:i})));
+    inner+=`<div class="options">`;
+    opts.forEach((opt,i)=>{
+      inner+=`<button class="option" data-orig="${opt.orig}" onclick="checkMC(${idx},${opt.orig},${q.answer},this)">
+        <span class="opt-letter">${letters[i]}.</span><span>${opt.text}</span>
+      </button>`;
+    });
+    inner+=`</div>`;
+  } else {
+    inner+=`<textarea class="open-answer" id="open-${idx}" placeholder="Digite sua resposta aqui…"></textarea>
+    <div class="check-open"><button class="btn" onclick="revealOpen(${idx})">💡 Ver Gabarito</button></div>`;
+  }
+
+  inner+=`<div class="gabarito" id="gab-${idx}">
+    <div class="gabarito-title">// Gabarito</div>
+    <div class="gabarito-text">${q.gabarito.replace(/\n/g,'<br>')}</div>
+  </div>`;
+
+  card.innerHTML=inner;
+  return card;
+}
+
+function checkMC(idx,chosen,correctIdx,btn){
+  const card=document.getElementById('card-'+idx);
+  if(card.dataset.done) return;
+  card.dataset.done='1';
+
+  card.querySelectorAll('.option').forEach(o=>{
+    o.disabled=true;
+    if(parseInt(o.dataset.orig)===correctIdx) o.classList.add('correct');
+  });
+
+  if(chosen===correctIdx){
+    btn.classList.add('correct');
+    card.classList.add('answered-correct');
+    correct++;
+  } else {
+    btn.classList.add('wrong');
+    card.classList.add('answered-wrong');
+    wrong++;
+  }
+
+  document.getElementById('gab-'+idx).style.display='block';
+  answered++; updateScore(); updateProgress();
+}
+
+function revealOpen(idx){
+  const card=document.getElementById('card-'+idx);
+  if(!card.dataset.open){
+    card.dataset.open='1';
+    openSeen++; answered++;
+    updateScore(); updateProgress();
+  }
+  document.getElementById('gab-'+idx).style.display='block';
+}
+
+function finishExam(){
+  const pct=correct+wrong>0?Math.round(correct/(correct+wrong)*100):0;
+  const emoji=pct>=90?'🏆 Excelente!':pct>=70?'✅ Bom trabalho!':pct>=50?'📚 Continue estudando!':'⚡ Reforce o conteúdo!';
+  document.getElementById('result-title').textContent=emoji;
+  document.getElementById('result-pct').textContent=
+    pct+'% de acerto nas objetivas · '+openSeen+' questões abertas consultadas';
+  document.getElementById('r-correct').textContent=correct;
+  document.getElementById('r-wrong').textContent=wrong;
+  document.getElementById('r-open').textContent=openSeen;
+  document.getElementById('r-pct').textContent=pct+'%';
+  document.getElementById('result-screen').style.display='block';
+  document.getElementById('result-screen').scrollIntoView({behavior:'smooth'});
+}
+
+startExam();
+</script>
+</body>
+</html>
